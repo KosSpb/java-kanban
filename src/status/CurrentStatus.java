@@ -1,7 +1,7 @@
 package status;
 
 public enum CurrentStatus {
-    New,
-    InProgress,
-    Done
+    NEW,
+    IN_PROGRESS,
+    DONE
 }

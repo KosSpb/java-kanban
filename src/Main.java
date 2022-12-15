@@ -1,22 +1,25 @@
 import allTasks.Epic;
 import allTasks.Subtask;
 import allTasks.Task;
+import manager.HistoryManager;
+import manager.Managers;
 import manager.TaskManager;
 import status.CurrentStatus;
 
 public class Main {
 
     public static void main(String[] args) {
-        TaskManager taskManager = new TaskManager();
+        TaskManager taskManager = Managers.getDefault();
+        HistoryManager historyManager = Managers.getDefaultHistory();
 
-        Task task1 = new Task("купить муки", "пшеничной", CurrentStatus.InProgress);
-        Task task2 = new Task("Почистить машину", "от снега", CurrentStatus.New);
+        Task task1 = new Task("купить муки", "пшеничной", CurrentStatus.IN_PROGRESS);
+        Task task2 = new Task("Почистить машину", "от снега", CurrentStatus.NEW);
         Epic epic1 = new Epic("Закончить 3-й спринт", "ещё вчера");
         Subtask subtask1 = new Subtask(3, "Изучить теорию", "3-го спринта",
-                CurrentStatus.InProgress);
-        Subtask subtask2 = new Subtask(3, "Сдать ТЗ", "3-го спринта", CurrentStatus.New);
+                CurrentStatus.IN_PROGRESS);
+        Subtask subtask2 = new Subtask(3, "Сдать ТЗ", "3-го спринта", CurrentStatus.NEW);
         Epic epic2 = new Epic("Закончить первый учебный модуль", "успеть до 19.12");
-        Subtask subtask3 = new Subtask(6, "Изучить теорию", "4-го спринта", CurrentStatus.New);
+        Subtask subtask3 = new Subtask(6, "Изучить теорию", "4-го спринта", CurrentStatus.NEW);
 
         taskManager.createTask(task1);
         taskManager.createTask(task2);
@@ -35,13 +38,13 @@ public class Main {
         System.out.println(taskManager.getSubtaskById(7) + "\n");
 
         //Задачи с изменёнными статусами:
-        Task updatedTask1 = new Task("купить муки", "пшеничной", CurrentStatus.Done);
-        Task updatedTask2 = new Task("Почистить машину", "от снега", CurrentStatus.InProgress);
+        Task updatedTask1 = new Task("купить муки", "пшеничной", CurrentStatus.DONE);
+        Task updatedTask2 = new Task("Почистить машину", "от снега", CurrentStatus.IN_PROGRESS);
         Subtask updatedSubtask1 = new Subtask(3, "Изучить теорию", "3-го спринта",
-                CurrentStatus.Done);
-        Subtask updatedSubtask2 = new Subtask(3, "Сдать ТЗ", "3-го спринта", CurrentStatus.Done);
+                CurrentStatus.DONE);
+        Subtask updatedSubtask2 = new Subtask(3, "Сдать ТЗ", "3-го спринта", CurrentStatus.DONE);
         Subtask updatedSubtask3 = new Subtask(6, "Изучить теорию", "4-го спринта",
-                CurrentStatus.InProgress);
+                CurrentStatus.IN_PROGRESS);
 
         updatedTask1.setId(taskManager.getTaskById(1).getId());
         updatedTask2.setId(taskManager.getTaskById(2).getId());
@@ -87,5 +90,42 @@ public class Main {
         System.out.println(taskManager.getTaskList() + "\n");
         System.out.println(taskManager.getEpicList() + "\n");
         System.out.println(taskManager.getSubtaskList() + "\n");
+
+        System.out.println("\nИстория просмотров старых задач:\n");
+        historyManager.getHistory();
+
+        Task task11 = new Task("Закрепить розетку", "плохо держиться в стене", CurrentStatus.NEW);
+        Task task22 = new Task("Почистить машину от снега", "снова", CurrentStatus.NEW);
+        Epic epic11 = new Epic("Закончить 4-й спринт", "а то скоро дедлайн");
+        Subtask subtask11 = new Subtask(10, "Изучить теорию", "4-го спринта",
+                CurrentStatus.DONE);
+        Subtask subtask22 = new Subtask(10, "Сдать ТЗ", "4-го спринта", CurrentStatus.IN_PROGRESS);
+        Epic epic22 = new Epic("Закупиться к Новому году", "осталось всего 2 недели");
+        Subtask subtask33 = new Subtask(13, "Заехать в Ленту", "список на столе",
+                CurrentStatus.NEW);
+
+        taskManager.createTask(task11);
+        taskManager.createTask(task22);
+        taskManager.createEpic(epic11);
+        taskManager.createSubtask(subtask11);
+        taskManager.createSubtask(subtask22);
+        taskManager.createEpic(epic22);
+        taskManager.createSubtask(subtask33);
+
+        taskManager.getTaskById(8);
+        taskManager.getEpicById(10);
+        taskManager.getSubtaskById(11);
+        taskManager.getTaskById(9);
+        taskManager.getEpicById(13);
+        taskManager.getTaskById(9);
+        taskManager.getSubtaskById(14);
+        taskManager.getTaskById(8);
+        taskManager.getEpicById(10);
+        taskManager.getSubtaskById(12);
+        taskManager.getTaskById(9);
+        taskManager.getEpicById(13);
+
+        System.out.println("\nИстория просмотров новых задач:\n");
+        historyManager.getHistory();
     }
 }

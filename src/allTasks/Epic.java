@@ -9,7 +9,7 @@ public class Epic extends Task {
     private List<Long> subtaskIdList;//Каждый эпик знает, какие подзадачи в него входят
 
     public Epic(String header, String description) {
-        super(header, description, CurrentStatus.New);
+        super(header, description, CurrentStatus.NEW);
         this.subtaskIdList = new ArrayList<>();
     }
 
