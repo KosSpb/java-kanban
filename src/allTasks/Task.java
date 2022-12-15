@@ -1,6 +1,6 @@
-package AllTasks;
+package allTasks;
 
-import Status.CurrentStatus;
+import status.CurrentStatus;
 
 public class Task {
     protected String header;

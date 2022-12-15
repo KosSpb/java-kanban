@@ -1,6 +1,6 @@
-package AllTasks;
+package allTasks;
 
-import Status.CurrentStatus;
+import status.CurrentStatus;
 
 public class Subtask extends Task {
     private long epicId;//Для каждой подзадачи известно, в рамках какого эпика она выполняется

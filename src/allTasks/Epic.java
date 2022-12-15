@@ -1,6 +1,6 @@
-package AllTasks;
+package allTasks;
 
-import Status.CurrentStatus;
+import status.CurrentStatus;
 
 import java.util.List;
 import java.util.ArrayList;

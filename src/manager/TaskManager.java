@@ -1,9 +1,9 @@
-package Manager;
+package manager;
 
-import AllTasks.Epic;
-import AllTasks.Subtask;
-import AllTasks.Task;
-import Status.CurrentStatus;
+import allTasks.Epic;
+import allTasks.Subtask;
+import allTasks.Task;
+import status.CurrentStatus;
 
 import java.util.HashMap;
 import java.util.List;
@@ -77,47 +77,47 @@ public class TaskManager {
     }
 
     //Обновление. Новая версия объекта с верным идентификатором передаётся в виде параметра:
-    public String updateTask(Task task) {
+    public void updateTask(Task task) {
         if (taskStorage.containsKey(task.getId())) {
             taskStorage.put(task.getId(), task);
-            return "Задача с ID '" + task.getId() + "' обновлена.";
+            System.out.println("Задача с ID '" + task.getId() + "' обновлена.");
         } else {
-            return "ID '" + task.getId() + "' нет в списке задач. Обновление невозможно.";
+            System.out.println("ID '" + task.getId() + "' нет в списке задач. Обновление невозможно.");
         }
     }
 
-    public String updateEpic(Epic epic) {
+    public void updateEpic(Epic epic) {
         if (epicStorage.containsKey(epic.getId())) {
             epicStorage.put(epic.getId(), epic);
-            return "Эпик с ID '" + epic.getId() + "' обновлен.";
+            System.out.println("Эпик с ID '" + epic.getId() + "' обновлен.");
         } else {
-            return "ID '" + epic.getId() + "' нет в списке эпиков. Обновление невозможно.";
+            System.out.println("ID '" + epic.getId() + "' нет в списке эпиков. Обновление невозможно.");
         }
     }
 
-    public String updateSubtask(Subtask subtask) {
+    public void updateSubtask(Subtask subtask) {
         if (subStorage.containsKey(subtask.getId())) {
             subStorage.put(subtask.getId(), subtask);
             setEpicStatus(epicStorage.get(subtask.getEpicId()));
-            return "Подзадача с ID '" + subtask.getId() + "' обновлена.";
+            System.out.println("Подзадача с ID '" + subtask.getId() + "' обновлена.");
         } else {
-            return "ID '" + subtask.getId() + "' нет в списке подзадач. Обновление невозможно.";
+            System.out.println("ID '" + subtask.getId() + "' нет в списке подзадач. Обновление невозможно.");
         }
     }
 
     //Удаление всех задач:
-    public String deleteTasks() {
+    public void deleteTasks() {
         taskStorage.clear();
-        return "Все задачи удалены.";
+        System.out.println("Все задачи удалены.");
     }
 
-    public String deleteEpics() {
+    public void deleteEpics() {
         subStorage.clear();
         epicStorage.clear();
-        return "Все эпики с подзадачами удалены.";
+        System.out.println("Все эпики с подзадачами удалены.");
     }
 
-    public String deleteSubtasks() {
+    public void deleteSubtasks() {
         for (Epic epic : epicStorage.values()) {
             List<Long> subList = epic.getSubtaskIdList();
             subList.clear();
@@ -125,40 +125,40 @@ public class TaskManager {
             setEpicStatus(epic);
         }
         subStorage.clear();
-        return "Все подзадачи удалены.";
+        System.out.println("Все подзадачи удалены.");
     }
 
     //Удаление по идентификатору:
-    public String deleteTaskById(long id) {
+    public void deleteTaskById(long id) {
         if (taskStorage.containsKey(id)) {
             taskStorage.remove(id);
-            return "Задача с ID '" + id + "' удалена.";
+            System.out.println("Задача с ID '" + id + "' удалена.");
         } else {
-            return "Задача с ID '" + id + "' отсутствует, либо уже была удалена.";
+            System.out.println("Задача с ID '" + id + "' отсутствует, либо уже была удалена.");
         }
     }
 
-    public String deleteEpicById(long id) {
+    public void deleteEpicById(long id) {
         if (epicStorage.containsKey(id)) {
             for (Long idFor : epicStorage.get(id).getSubtaskIdList()) {//удаление сабтасков привязанных к эпику
                 subStorage.remove(idFor);
             }
             epicStorage.remove(id);
-            return "Эпик с ID '" + id + "' удален вместе с его подзадачами.";
+            System.out.println("Эпик с ID '" + id + "' удален вместе с его подзадачами.");
         } else {
-            return "Эпик с ID '" + id + "' отсутствует, либо уже был удален.";
+            System.out.println("Эпик с ID '" + id + "' отсутствует, либо уже был удален.");
         }
     }
 
-    public String deleteSubtaskById(long id) {
+    public void deleteSubtaskById(long id) {
         if (subStorage.containsKey(id)) {
             Epic epic = epicStorage.get(subStorage.get(id).getEpicId());//удаление id сабтаска из списка его эпика
             epic.getSubtaskIdList().remove(id);
             setEpicStatus(epic);
             subStorage.remove(id);
-            return "Подзадача с ID '" + id + "' удалена.";
+            System.out.println("Подзадача с ID '" + id + "' удалена.");
         } else {
-            return "Подзадача с ID '" + id + "' отсутствует, либо уже была удалена.";
+            System.out.println("Подзадача с ID '" + id + "' отсутствует, либо уже была удалена.");
         }
     }
 
