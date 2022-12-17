@@ -1,4 +1,4 @@
-package allTasks;
+package tasks;
 
 import status.CurrentStatus;
 
@@ -6,29 +6,29 @@ import java.util.List;
 import java.util.ArrayList;
 
 public class Epic extends Task {
-    private List<Long> subtaskIdList;//Каждый эпик знает, какие подзадачи в него входят
+    private List<Long> subtaskIds;//Каждый эпик знает, какие подзадачи в него входят
 
     public Epic(String header, String description) {
         super(header, description, CurrentStatus.NEW);
-        this.subtaskIdList = new ArrayList<>();
+        this.subtaskIds = new ArrayList<>();
     }
 
-    public List<Long> getSubtaskIdList() {
-        return subtaskIdList;
+    public List<Long> getSubtaskIds() {
+        return subtaskIds;
     }
 
-    public void setSubtaskIdList(List<Long> subtaskIdList) {
-        this.subtaskIdList = subtaskIdList;
+    public void setSubtaskIds(List<Long> subtaskIds) {
+        this.subtaskIds = subtaskIds;
     }
 
     public void addIdSubtaskIdList(long id) {//добавление ID сабтасков в список эпика
-        this.subtaskIdList.add(id);
+        this.subtaskIds.add(id);
     }
 
     @Override
     public String toString() {
         return "AllTasks.Epic{" +
-                "subtaskIdList=" + subtaskIdList +
+                "subtaskIdList=" + subtaskIds +
                 ", header='" + header + '\'' +
                 ", description='" + description + '\'' +
                 ", status='" + status + '\'' +

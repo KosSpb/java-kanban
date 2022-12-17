@@ -1,6 +1,6 @@
-package manager;
+package managers;
 
-import allTasks.Task;
+import tasks.Task;
 
 import java.util.List;
 

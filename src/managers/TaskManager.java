@@ -1,8 +1,8 @@
-package manager;
+package managers;
 
-import allTasks.Epic;
-import allTasks.Subtask;
-import allTasks.Task;
+import tasks.Epic;
+import tasks.Subtask;
+import tasks.Task;
 
 import java.util.List;
 
@@ -40,4 +40,7 @@ public interface TaskManager {
 
     //Получение списка всех подзадач определённого эпика:
     List<Subtask> getSubsByEpicId(long id);
+
+    //Получение истории просмотров:
+    List<Task> getHistory();
 }

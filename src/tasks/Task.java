@@ -1,4 +1,4 @@
-package allTasks;
+package tasks;
 
 import status.CurrentStatus;
 
