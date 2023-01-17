@@ -128,12 +128,27 @@ public class InMemoryTaskManager implements TaskManager {
     //Удаление всех задач:
     @Override
     public void deleteTasks() {
+        if (!taskStorage.isEmpty()) {
+            for (Long idFor : taskStorage.keySet()) {
+                historyManager.remove(idFor);
+            }
+        }
         taskStorage.clear();
         System.out.println("Все задачи удалены.");
     }
 
     @Override
     public void deleteEpics() {
+        if (!subStorage.isEmpty()) {
+            for (Long idFor : subStorage.keySet()) {
+                historyManager.remove(idFor);
+            }
+        }
+        if (!epicStorage.isEmpty()) {
+            for (Long idFor : epicStorage.keySet()) {
+                historyManager.remove(idFor);
+            }
+        }
         subStorage.clear();
         epicStorage.clear();
         System.out.println("Все эпики с подзадачами удалены.");
@@ -141,6 +156,11 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void deleteSubtasks() {
+        if (!subStorage.isEmpty()) {
+            for (Long idFor : subStorage.keySet()) {
+                historyManager.remove(idFor);
+            }
+        }
         for (Epic epic : epicStorage.values()) {
             List<Long> subList = epic.getSubtaskIds();
             subList.clear();
@@ -157,6 +177,7 @@ public class InMemoryTaskManager implements TaskManager {
         if (taskStorage.containsKey(id)) {
             taskStorage.remove(id);
             System.out.println("Задача с ID '" + id + "' удалена.");
+            historyManager.remove(id);
         } else {
             System.out.println("Задача с ID '" + id + "' отсутствует, либо уже была удалена.");
         }
@@ -167,9 +188,11 @@ public class InMemoryTaskManager implements TaskManager {
         if (epicStorage.containsKey(id)) {
             for (Long idFor : epicStorage.get(id).getSubtaskIds()) {//удаление сабтасков привязанных к эпику
                 subStorage.remove(idFor);
+                historyManager.remove(idFor);
             }
             epicStorage.remove(id);
             System.out.println("Эпик с ID '" + id + "' удален вместе с его подзадачами.");
+            historyManager.remove(id);
         } else {
             System.out.println("Эпик с ID '" + id + "' отсутствует, либо уже был удален.");
         }
@@ -183,6 +206,7 @@ public class InMemoryTaskManager implements TaskManager {
             setEpicStatus(epic);
             subStorage.remove(id);
             System.out.println("Подзадача с ID '" + id + "' удалена.");
+            historyManager.remove(id);
         } else {
             System.out.println("Подзадача с ID '" + id + "' отсутствует, либо уже была удалена.");
         }

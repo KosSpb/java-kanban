@@ -27,6 +27,8 @@ public class Main {
         taskManager.createEpic(epic2);
         taskManager.createSubtask(subtask3);
 
+        System.out.println(taskManager.getHistory());
+
         taskManager.getEpicById(3);
 
         System.out.println("\nИстория просмотров после вызова 1 задачи:\n");
@@ -96,6 +98,42 @@ public class Main {
         taskManager.getTaskById(1);
 
         System.out.println("\nИстория просмотров после вызова 12 задач:\n");
+        System.out.println(taskManager.getHistory());
+        System.out.println("________________________________");
+
+        taskManager.deleteTaskById(1);
+
+        System.out.println("\nИстория просмотров после удаления задачи 1:\n");
+        System.out.println(taskManager.getHistory());
+        System.out.println("________________________________");
+
+        taskManager.deleteEpicById(6);
+
+        System.out.println("\nИстория просмотров после удаления эпика 6:\n");
+        System.out.println(taskManager.getHistory());
+        System.out.println("________________________________");
+
+        taskManager.deleteSubtaskById(5);
+
+        System.out.println("\nИстория просмотров после удаления подзадачи 5:\n");
+        System.out.println(taskManager.getHistory());
+        System.out.println("________________________________");
+
+        taskManager.deleteSubtasks();
+
+        System.out.println("\nИстория просмотров после удаления всех подзадач:\n");
+        System.out.println(taskManager.getHistory());
+        System.out.println("________________________________");
+
+        taskManager.deleteEpics();
+
+        System.out.println("\nИстория просмотров после удаления всех эпиков:\n");
+        System.out.println(taskManager.getHistory());
+        System.out.println("________________________________");
+
+        taskManager.deleteTasks();
+
+        System.out.println("\nИстория просмотров после удаления всех задач:\n");
         System.out.println(taskManager.getHistory());
         System.out.println("________________________________");
     }
