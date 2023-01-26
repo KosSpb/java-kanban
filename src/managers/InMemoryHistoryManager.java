@@ -9,7 +9,12 @@ public class InMemoryHistoryManager implements HistoryManager {
 
     @Override
     public void add(Task task) {
-        history.linkLast(task);
+        if (task != null) {
+            history.linkLast(task);
+        } else {
+            System.out.println("Предотвращена попытка передать null в метод по добавлению просмотренной задачи");
+        }
+
     }
 
     @Override
@@ -20,13 +25,6 @@ public class InMemoryHistoryManager implements HistoryManager {
     @Override
     public List<Task> getHistory() {
         return history.getTasks();
-    }
-
-    @Override
-    public String toString() {
-        return "InMemoryHistoryManager{" +
-                "history=" + history +
-                '}';
     }
 
     private class CustomLinkedList {
@@ -67,17 +65,11 @@ public class InMemoryHistoryManager implements HistoryManager {
                 return new ArrayList<>();
             }
 
-            List<Node> nodeTasks = new ArrayList<>();
-            nodeTasks.add(first);
-            if (first.next != null) {
-                for (int i = 0; i < nodes.size() - 1; i++) {
-                    nodeTasks.add(nodeTasks.get(i).next);
-                }
-            }
-
             List<Task> tasks = new ArrayList<>();
-            for (int i = 0; i < nodeTasks.size(); i++) {
-                tasks.add(nodeTasks.get(i).task);
+            Node node = first;
+            while (node != null) {
+                tasks.add(node.task);
+                node = node.next;
             }
             return tasks;
         }
