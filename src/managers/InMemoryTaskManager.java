@@ -3,7 +3,7 @@ package managers;
 import tasks.Epic;
 import tasks.Subtask;
 import tasks.Task;
-import status.CurrentStatus;
+import enums.CurrentStatus;
 
 import java.util.HashMap;
 import java.util.List;
@@ -23,6 +23,26 @@ public class InMemoryTaskManager implements TaskManager {
         this.epicStorage = new HashMap<>();
         this.subStorage = new HashMap<>();
         this.historyManager = Managers.getDefaultHistory();
+    }
+
+    protected Map<Long, Task> getTaskStorage() {
+        return taskStorage;
+    }
+
+    protected Map<Long, Epic> getEpicStorage() {
+        return epicStorage;
+    }
+
+    protected Map<Long, Subtask> getSubStorage() {
+        return subStorage;
+    }
+
+    protected HistoryManager getHistoryManager() {
+        return historyManager;
+    }
+
+    protected void setId(long id) {
+        this.id = id;
     }
 
     private long generateId() {

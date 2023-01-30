@@ -3,7 +3,7 @@ import tasks.Subtask;
 import tasks.Task;
 import managers.Managers;
 import managers.TaskManager;
-import status.CurrentStatus;
+import enums.CurrentStatus;
 
 public class Main {
 

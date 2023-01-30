@@ -61,7 +61,6 @@ public class InMemoryHistoryManager implements HistoryManager {
 
         public List<Task> getTasks() { //собирает все задачи из мапы нод в ArrayList
             if (nodes.isEmpty()) {
-                System.out.println("История просмотров пока что пуста.");
                 return new ArrayList<>();
             }
 

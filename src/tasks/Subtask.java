@@ -1,12 +1,20 @@
 package tasks;
 
-import status.CurrentStatus;
+import enums.TaskType;
+import enums.CurrentStatus;
 
 public class Subtask extends Task {
     private long epicId;//Для каждой подзадачи известно, в рамках какого эпика она выполняется
 
     public Subtask(long epicId, String header, String description, CurrentStatus status) {
         super(header, description, status);
+        this.taskType = TaskType.SUBTASK;
+        this.epicId = epicId;
+    }
+
+    public Subtask(long id, String header, CurrentStatus status, String description, long epicId) {
+        super(id, header, status, description);
+        this.taskType = TaskType.SUBTASK;
         this.epicId = epicId;
     }
 

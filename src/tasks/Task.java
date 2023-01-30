@@ -1,17 +1,32 @@
 package tasks;
 
-import status.CurrentStatus;
+import enums.TaskType;
+import enums.CurrentStatus;
 
 public class Task {
+    protected TaskType taskType;
     protected String header;
     protected String description;
     protected long id;
     protected CurrentStatus status;
 
     public Task(String header, String description, CurrentStatus status) {
+        this.taskType = TaskType.TASK;
         this.header = header;
         this.description = description;
         this.status = status;
+    }
+
+    public Task(long id, String header, CurrentStatus status, String description) {
+        this.id = id;
+        this.taskType = TaskType.TASK;
+        this.header = header;
+        this.status = status;
+        this.description = description;
+    }
+
+    public TaskType getTaskType() {
+        return taskType;
     }
 
     public String getHeader() {

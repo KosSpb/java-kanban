@@ -1,6 +1,7 @@
 package tasks;
 
-import status.CurrentStatus;
+import enums.TaskType;
+import enums.CurrentStatus;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -10,6 +11,13 @@ public class Epic extends Task {
 
     public Epic(String header, String description) {
         super(header, description, CurrentStatus.NEW);
+        this.taskType = TaskType.EPIC;
+        this.subtaskIds = new ArrayList<>();
+    }
+
+    public Epic(long id, String header, CurrentStatus status, String description) {
+        super(id, header, status, description);
+        this.taskType = TaskType.EPIC;
         this.subtaskIds = new ArrayList<>();
     }
 
