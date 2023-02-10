@@ -10,10 +10,11 @@ import exceptions.ManagerSaveException;
 import java.io.*;
 
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Paths;
 import java.util.*;
 
-public class FileBackedTasksManager extends InMemoryTaskManager implements TaskManager {
-    File file;
+public class FileBackedTasksManager extends InMemoryTaskManager {
+    private File file;
 
     public FileBackedTasksManager(File file) {
         this.file = file;
@@ -33,9 +34,9 @@ public class FileBackedTasksManager extends InMemoryTaskManager implements TaskM
 
         try (BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(file, StandardCharsets.UTF_8))) {
             bufferedWriter.write("id,type,name,status,description,epic\n");
-            for (Long anyTaskId : sortedTasks.keySet()) {
-                if (sortedTasks.get(anyTaskId) != null) {
-                    bufferedWriter.write(toString(sortedTasks.get(anyTaskId)) + "\n");
+            for (Map.Entry<Long, Task> sortedTasksEntry : sortedTasks.entrySet()) {
+                if (sortedTasksEntry.getValue() != null) {
+                    bufferedWriter.write(toString(sortedTasksEntry.getValue()) + "\n");
                 }
             }
             bufferedWriter.write("\n");
@@ -45,26 +46,6 @@ public class FileBackedTasksManager extends InMemoryTaskManager implements TaskM
         } catch (IOException exception) {
             throw new ManagerSaveException("Произошла ошибка во время сохранения!", exception);
         }
-    }
-
-    private String toString(Task task) { //создаёт строку из задачи
-        String taskToString = String.format("%d,%s,%s,%s,%s,", task.getId(), task.getTaskType().toString(),
-                task.getHeader(), task.getStatus().toString(), task.getDescription());
-        if (task.getTaskType() == TaskType.SUBTASK) {
-            Subtask subtask = (Subtask)task;
-            taskToString += String.format("%d", subtask.getEpicId());
-        }
-        return taskToString;
-    }
-
-    private static String historyToString(HistoryManager manager) { //создаёт строку из истории просмотров
-        StringBuilder historyString = new StringBuilder();
-        for (Task task : manager.getHistory()) {
-            historyString.append(task.getId());
-            historyString.append(",");
-        }
-        historyString.deleteCharAt(historyString.length() - 1);
-        return historyString.toString();
     }
 
     //восстанавливает данные менеджера из файла при запуске программы:
@@ -112,32 +93,6 @@ public class FileBackedTasksManager extends InMemoryTaskManager implements TaskM
             throw new ManagerSaveException("Произошла ошибка во время восстановления!", exception);
         }
         return managerFromFile;
-    }
-
-    private Task fromString(String value) { //создаёт задачу из строки
-        String[] taskFields = value.split(",");
-        long id = Long.parseLong(taskFields[0]);
-        TaskType taskType = TaskType.valueOf(taskFields[1]);
-        String header = taskFields[2];
-        CurrentStatus status = CurrentStatus.valueOf(taskFields[3]);
-        String description = taskFields[4];
-        if (taskType == TaskType.SUBTASK) {
-            long epicId = Long.parseLong(taskFields[5]);
-            return new Subtask(id, header, status, description, epicId);
-        }
-        if (taskType == TaskType.EPIC) {
-            return new Epic(id, header, status, description);
-        }
-        return new Task(id, header, status, description);
-    }
-
-    private static List<Long> historyFromString(String value) { //восстановление истории просмотров из строки
-        String[] historyTaskIds = value.split(",");
-        List<Long> restoredHistory = new ArrayList<>();
-        for (String taskId : historyTaskIds) {
-            restoredHistory.add(Long.parseLong(taskId));
-        }
-        return restoredHistory;
     }
 
     //Получение по идентификатору:
@@ -216,8 +171,54 @@ public class FileBackedTasksManager extends InMemoryTaskManager implements TaskM
         save();
     }
 
+    private String toString(Task task) { //создаёт строку из задачи
+        String taskToString = String.format("%d,%s,%s,%s,%s,", task.getId(), task.getTaskType().toString(),
+                task.getHeader(), task.getStatus().toString(), task.getDescription());
+        if (task.getTaskType() == TaskType.SUBTASK) {
+            Subtask subtask = (Subtask)task;
+            taskToString += String.format("%d", subtask.getEpicId());
+        }
+        return taskToString;
+    }
+
+    private static String historyToString(HistoryManager manager) { //создаёт строку из истории просмотров
+        StringBuilder historyString = new StringBuilder();
+        for (Task task : manager.getHistory()) {
+            historyString.append(task.getId());
+            historyString.append(",");
+        }
+        historyString.deleteCharAt(historyString.length() - 1);
+        return historyString.toString();
+    }
+
+    private Task fromString(String value) { //создаёт задачу из строки
+        String[] taskFields = value.split(",");
+        long id = Long.parseLong(taskFields[0]);
+        TaskType taskType = TaskType.valueOf(taskFields[1]);
+        String header = taskFields[2];
+        CurrentStatus status = CurrentStatus.valueOf(taskFields[3]);
+        String description = taskFields[4];
+        if (taskType == TaskType.SUBTASK) {
+            long epicId = Long.parseLong(taskFields[5]);
+            return new Subtask(id, header, status, description, epicId);
+        }
+        if (taskType == TaskType.EPIC) {
+            return new Epic(id, header, status, description);
+        }
+        return new Task(id, header, status, description);
+    }
+
+    private static List<Long> historyFromString(String value) { //восстановление истории просмотров из строки
+        String[] historyTaskIds = value.split(",");
+        List<Long> restoredHistory = new ArrayList<>();
+        for (String taskId : historyTaskIds) {
+            restoredHistory.add(Long.parseLong(taskId));
+        }
+        return restoredHistory;
+    }
+
     public static void main(String[] args) {
-        TaskManager fileBackedTasksManager = Managers.getFileBackedTasksManager();
+        TaskManager fileBackedTasksManager = Managers.getDefault("resources/FileBackedTasks.csv");
 
         Task task1 = new Task("Заменить процессор", "на купленный", CurrentStatus.NEW);
         Task task2 = new Task("Починить печку", "в машине", CurrentStatus.IN_PROGRESS);
@@ -253,16 +254,17 @@ public class FileBackedTasksManager extends InMemoryTaskManager implements TaskM
         System.out.println(fileBackedTasksManager.getHistory());
         System.out.println("________________________________");
 
-        TaskManager taskManagerFromBackup = Managers.getFileBackedTasksManager();
+        TaskManager restoredFileBackedTasksManager =
+                loadFromFile((Paths.get("resources/FileBackedTasks.csv")).toFile());
 
         System.out.println("\nСписок задач после восстановления из файла:\n");
-        System.out.println(taskManagerFromBackup.getTaskList());
-        System.out.println(taskManagerFromBackup.getEpicList());
-        System.out.println(taskManagerFromBackup.getSubtaskList());
+        System.out.println(restoredFileBackedTasksManager.getTaskList());
+        System.out.println(restoredFileBackedTasksManager.getEpicList());
+        System.out.println(restoredFileBackedTasksManager.getSubtaskList());
         System.out.println("________________________________");
 
         System.out.println("\nИстория просмотров в восстановленной истории:\n");
-        System.out.println(taskManagerFromBackup.getHistory());
+        System.out.println(restoredFileBackedTasksManager.getHistory());
         System.out.println("________________________________");
     }
 }

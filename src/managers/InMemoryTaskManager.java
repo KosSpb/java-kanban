@@ -25,30 +25,6 @@ public class InMemoryTaskManager implements TaskManager {
         this.historyManager = Managers.getDefaultHistory();
     }
 
-    protected Map<Long, Task> getTaskStorage() {
-        return taskStorage;
-    }
-
-    protected Map<Long, Epic> getEpicStorage() {
-        return epicStorage;
-    }
-
-    protected Map<Long, Subtask> getSubStorage() {
-        return subStorage;
-    }
-
-    protected HistoryManager getHistoryManager() {
-        return historyManager;
-    }
-
-    protected void setId(long id) {
-        this.id = id;
-    }
-
-    private long generateId() {
-        return ++id;
-    }
-
     //Получение списка всех задач:
     @Override
     public List<Task> getTaskList() {
@@ -246,6 +222,30 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public List<Task> getHistory() {
         return historyManager.getHistory();
+    }
+
+    protected Map<Long, Task> getTaskStorage() {
+        return taskStorage;
+    }
+
+    protected Map<Long, Epic> getEpicStorage() {
+        return epicStorage;
+    }
+
+    protected Map<Long, Subtask> getSubStorage() {
+        return subStorage;
+    }
+
+    protected HistoryManager getHistoryManager() {
+        return historyManager;
+    }
+
+    protected void setId(long id) {
+        this.id = id;
+    }
+
+    private long generateId() {
+        return ++id;
     }
 
     //Управление статусами эпиков:

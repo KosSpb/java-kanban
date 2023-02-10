@@ -1,6 +1,5 @@
 package managers;
 
-import java.nio.file.Files;
 import java.nio.file.Paths;
 
 public class Managers {
@@ -9,12 +8,8 @@ public class Managers {
         return new InMemoryTaskManager();
     }
 
-    public static TaskManager getFileBackedTasksManager() {
-        if (Files.exists(Paths.get("resources/FileBackedTasks.csv"))) {
-            return FileBackedTasksManager.loadFromFile((Paths.get("resources/FileBackedTasks.csv")).toFile());
-        } else {
-            return new FileBackedTasksManager((Paths.get("resources/FileBackedTasks.csv")).toFile());
-        }
+    public static TaskManager getDefault(String pathToFile) { //возвращает нужную реализацию TaskManager
+        return new FileBackedTasksManager((Paths.get(pathToFile).toFile()));
     }
 
     public static HistoryManager getDefaultHistory() { //возвращает объект - историю просмотров
