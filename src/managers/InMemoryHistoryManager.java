@@ -14,7 +14,6 @@ public class InMemoryHistoryManager implements HistoryManager {
         } else {
             System.out.println("Предотвращена попытка передать null в метод по добавлению просмотренной задачи");
         }
-
     }
 
     @Override
@@ -74,6 +73,9 @@ public class InMemoryHistoryManager implements HistoryManager {
         }
 
         public void removeNode(Node node) { //удаляет принятую ноду, перепривязывает соседние
+            if (node == null) {
+                return;
+            }
             final Task task = node.task;
             final Node next = node.next;
             final Node prev = node.prev;

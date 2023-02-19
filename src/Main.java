@@ -1,31 +1,48 @@
+import managers.InMemoryTaskManager;
 import tasks.Epic;
 import tasks.Subtask;
 import tasks.Task;
-import managers.Managers;
 import managers.TaskManager;
 import enums.CurrentStatus;
+
+import java.time.LocalDateTime;
 
 public class Main {
 
     public static void main(String[] args) {
-        TaskManager taskManager = Managers.getDefault();
+        TaskManager taskManager = new InMemoryTaskManager();
 
-        Task task1 = new Task("купить муки", "пшеничной", CurrentStatus.IN_PROGRESS);
-        Task task2 = new Task("Почистить машину", "от снега", CurrentStatus.NEW);
         Epic epic1 = new Epic("Закончить 3-й спринт", "ещё вчера");
-        Subtask subtask1 = new Subtask(3, "Изучить теорию", "3-го спринта",
-                CurrentStatus.IN_PROGRESS);
-        Subtask subtask2 = new Subtask(3, "Сдать ТЗ", "3-го спринта", CurrentStatus.NEW);
-        Epic epic2 = new Epic("Закончить первый учебный модуль", "успеть до 19.12");
-        Subtask subtask3 = new Subtask(6, "Изучить теорию", "4-го спринта", CurrentStatus.NEW);
+        Task task1 = new Task("купить муки", "пшеничной", CurrentStatus.IN_PROGRESS,
+                LocalDateTime.of(2023,1,31,10,30), 120);
+        Task task2 = new Task("Почистить машину", "от снега", CurrentStatus.NEW,
+                LocalDateTime.of(2023,1,25,11,30), 60);
 
+        Subtask subtask1 = new Subtask(1, "Изучить теорию", "3-го спринта",
+                CurrentStatus.IN_PROGRESS, LocalDateTime.of(2023, 2, 5, 10, 0),
+                180);
+        Subtask subtask2 = new Subtask(1, "Сдать ТЗ", "3-го спринта", CurrentStatus.NEW,
+                null, 0);
+        Epic epic2 = new Epic("Закончить первый учебный модуль", "успеть до 19.12");
+        Subtask subtask3 = new Subtask(6, "Изучить теорию", "4-го спринта", CurrentStatus.NEW,
+                LocalDateTime.of(2023, 2, 7, 23, 15), 28);
+
+        Task task3 = new Task("постирать", "шторы", CurrentStatus.NEW, null, 0);
+        Task task4 = new Task("испечь", "хлеб", CurrentStatus.NEW,
+                LocalDateTime.of(2023, 1, 20, 15, 0), 50);
+        Subtask subtask4 = new Subtask(6, "сдать ТЗ", "8-го спринта", CurrentStatus.NEW,
+                null, 0);
+
+        taskManager.createEpic(epic1);
         taskManager.createTask(task1);
         taskManager.createTask(task2);
-        taskManager.createEpic(epic1);
         taskManager.createSubtask(subtask1);
         taskManager.createSubtask(subtask2);
         taskManager.createEpic(epic2);
         taskManager.createSubtask(subtask3);
+        taskManager.createTask(task3);
+        taskManager.createTask(task4);
+        taskManager.createSubtask(subtask4);
 
         System.out.println(taskManager.getHistory());
 
