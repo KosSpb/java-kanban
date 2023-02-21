@@ -14,9 +14,9 @@ public class Main {
 
         Epic epic1 = new Epic("Закончить 3-й спринт", "ещё вчера");
         Task task1 = new Task("купить муки", "пшеничной", CurrentStatus.IN_PROGRESS,
-                LocalDateTime.of(2023,1,31,10,30), 120);
+                null, 0);
         Task task2 = new Task("Почистить машину", "от снега", CurrentStatus.NEW,
-                LocalDateTime.of(2023,1,25,11,30), 60);
+                LocalDateTime.of(2023,1,31,9,30), 70);
 
         Subtask subtask1 = new Subtask(1, "Изучить теорию", "3-го спринта",
                 CurrentStatus.IN_PROGRESS, LocalDateTime.of(2023, 2, 5, 10, 0),

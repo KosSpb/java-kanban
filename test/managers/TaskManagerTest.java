@@ -23,7 +23,8 @@ abstract class TaskManagerTest<T extends TaskManager> {
     protected Task savedTask;
 
     @Test
-    protected void epicStatusCalculationWithBlankSubtaskList() {
+    void epicStatusCalculationWithBlankSubtaskList() {
+        taskManager.deleteSubtasks();
         CurrentStatus savedEpicStatus = savedEpic.getStatus();
 
         assertEquals(0, savedEpic.getSubtaskIds().size(), "Список подзадач не пуст.");
@@ -32,13 +33,8 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
     @Test
     void epicStatusCalculationWithAllSubtaskMarkedNew() {
-        assertEquals(0, savedEpic.getSubtaskIds().size(), "Список подзадач не пуст.");
-
-        Subtask subtask1 = new Subtask(1, "newSubHeader1", "newSubDescription1",
-                CurrentStatus.NEW, null, 0);
         Subtask subtask2 = new Subtask(1, "newSubHeader2", "newSubDescription2",
                 CurrentStatus.NEW, null, 0);
-        taskManager.createSubtask(subtask1);
         taskManager.createSubtask(subtask2);
 
         CurrentStatus savedEpicStatus = savedEpic.getStatus();
@@ -49,6 +45,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
     @Test
     void epicStatusCalculationWithAllSubtaskMarkedDone() {
+        taskManager.deleteSubtasks();
         assertEquals(0, savedEpic.getSubtaskIds().size(), "Список подзадач не пуст.");
 
         Subtask subtask1 = new Subtask(1, "newSubHeader1", "newSubDescription1",
@@ -66,13 +63,8 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
     @Test
     void epicStatusCalculationWithOneSubtaskMarkedNewAndAnotherMarkedDone() {
-        assertEquals(0, savedEpic.getSubtaskIds().size(), "Список подзадач не пуст.");
-
-        Subtask subtask1 = new Subtask(1, "newSubHeader1", "newSubDescription1",
-                CurrentStatus.NEW, null, 0);
         Subtask subtask2 = new Subtask(1, "newSubHeader2", "newSubDescription2",
                 CurrentStatus.DONE, null, 0);
-        taskManager.createSubtask(subtask1);
         taskManager.createSubtask(subtask2);
 
         CurrentStatus savedEpicStatus = savedEpic.getStatus();
@@ -83,6 +75,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
     @Test
     void epicStatusCalculationWithAllSubtaskMarkedInProgress() {
+        taskManager.deleteSubtasks();
         assertEquals(0, savedEpic.getSubtaskIds().size(), "Список подзадач не пуст.");
 
         Subtask subtask1 = new Subtask(1, "newSubHeader1", "newSubDescription1",
@@ -130,6 +123,8 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
     @Test
     void getPrioritizedTasksTestWithEmptySet() {
+        taskManager.deleteTasks();
+        taskManager.deleteEpics();
         List<Task> prioritizedTasks = taskManager.getPrioritizedTasks();
 
         assertNotNull(prioritizedTasks, "Задачи не возвращаются.");
@@ -148,6 +143,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
     @Test
     void getTaskListTestWithEmptyMap() {
+        taskManager.deleteTasks();
         List<Task> tasks = taskManager.getTaskList();
 
         assertNotNull(tasks, "Задачи не возвращаются.");
@@ -166,6 +162,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
     @Test
     void getEpicListTestWithEmptyMap() {
+        taskManager.deleteEpics();
         List<Epic> epics = taskManager.getEpicList();
 
         assertNotNull(epics, "Задачи не возвращаются.");
@@ -184,6 +181,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
     @Test
     void getSubtaskListWithEmptyMap() {
+        taskManager.deleteSubtasks();
         List<Subtask> subtasks = taskManager.getSubtaskList();
 
         assertNotNull(subtasks, "Задачи не возвращаются.");
@@ -213,6 +211,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
     @Test
     void getTaskByIdTestWithEmptyMapAndCorrectId() {
+        taskManager.deleteTasks();
         List<Task> tasks = taskManager.getTaskList();
 
         assertNotNull(tasks, "Задачи не возвращаются.");
@@ -247,6 +246,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
     @Test
     void getEpicByIdTestWithEmptyMapAndCorrectId() {
+        taskManager.deleteEpics();
         List<Epic> epics = taskManager.getEpicList();
 
         assertNotNull(epics, "Задачи не возвращаются.");
@@ -281,13 +281,14 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
     @Test
     void getSubtaskByIdTestWithEmptyMapAndCorrectId() {
+        taskManager.deleteSubtasks();
         List<Subtask> subtasks = taskManager.getSubtaskList();
 
         assertNotNull(subtasks, "Подзадачи не возвращаются.");
         assertEquals(0, subtasks.size(), "Неверное количество подзадач.");
 
         Subtask subtask = taskManager.getSubtaskById(3);
-        int listOfSubtaskSize = taskManager.getTaskList().size();
+        int listOfSubtaskSize = taskManager.getSubtaskList().size();
 
         assertEquals(0, listOfSubtaskSize, "Неверное количество задач.");
         assertNull(subtask);
@@ -409,7 +410,11 @@ abstract class TaskManagerTest<T extends TaskManager> {
                 CurrentStatus.IN_PROGRESS, LocalDateTime.of(2023, 1, 1, 0, 0),
                 5);
         updatedTask.setId(0);
-        taskManager.updateTask(updatedTask);
+
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> taskManager.updateTask(updatedTask));
+        assertEquals("ID '" + updatedTask.getId() + "' нет в списке задач. " +
+                "Обновление невозможно.", exception.getMessage());
 
         List<Task> unUpdatedTasks = taskManager.getTaskList();
 
@@ -470,7 +475,11 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
         Epic updatedEpic = new Epic("updatedEpicHeader", "updatedEpicDescription");
         updatedEpic.setId(0);
-        taskManager.updateEpic(updatedEpic);
+
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> taskManager.updateEpic(updatedEpic));
+        assertEquals("ID '" + updatedEpic.getId() + "' нет в списке эпиков. " +
+                "Обновление невозможно.", exception.getMessage());
 
         List<Epic> unUpdatedEpics = taskManager.getEpicList();
         List<Long> subtaskIdsOfEpicAfterUpdate = unUpdatedEpics.get(0).getSubtaskIds();
@@ -553,7 +562,11 @@ abstract class TaskManagerTest<T extends TaskManager> {
                 CurrentStatus.IN_PROGRESS, LocalDateTime.of(2023, 1, 10, 15, 25),
                 120);
         updatedSubtask.setId(0);
-        taskManager.updateSubtask(updatedSubtask);
+
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> taskManager.updateSubtask(updatedSubtask));
+        assertEquals("ID '" + updatedSubtask.getId() + "' нет в списке подзадач. " +
+                "Обновление невозможно.", exception.getMessage());
 
         List<Subtask> unUpdatedSubtasks = taskManager.getSubtaskList();
         Epic epicAfterSubtaskUpdate = taskManager.getEpicById(unUpdatedSubtasks.get(0).getEpicId());
@@ -604,11 +617,16 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
         Task newTask = new Task("newTaskHeader", "newTaskDescription", CurrentStatus.NEW,
                 LocalDateTime.of(2023, 2, 18, 9, 30), 60);
-        Task uncreatedTask = taskManager.createTask(newTask);
+
+        IllegalStateException exception = assertThrows(IllegalStateException.class,
+                () -> taskManager.createTask(newTask));
+        assertEquals(String.format("Время создаваемой задачи пересекается с задачей '%s' типа %s. " +
+                "Время её начала - %s. Время её окончания - %s. Выберите другое время для новой задачи.",
+                task.getHeader(), task.getTaskType().toString(), task.getStartTime().toString(),
+                task.getEndTime().toString()), exception.getMessage());
 
         List<Task> tasksAfterAttemptToCreateNewTask = taskManager.getTaskList();
 
-        assertEquals(0, uncreatedTask.getId(), "ID несозданной задачи отличается от 0.");
         assertNotNull(tasksAfterAttemptToCreateNewTask, "Задачи не возвращаются.");
         assertEquals(1, tasksAfterAttemptToCreateNewTask.size());
         assertEquals(task, tasksAfterAttemptToCreateNewTask.get(0), "Задачи не совпадают.");
@@ -624,11 +642,16 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
         Task newTask = new Task("newTaskHeader", "newTaskDescription", CurrentStatus.NEW,
                 LocalDateTime.of(2023, 2, 18, 10, 30), 60);
-        Task uncreatedTask = taskManager.createTask(newTask);
+
+        IllegalStateException exception = assertThrows(IllegalStateException.class,
+                () -> taskManager.createTask(newTask));
+        assertEquals(String.format("Время создаваемой задачи пересекается с задачей '%s' типа %s. " +
+                        "Время её начала - %s. Время её окончания - %s. Выберите другое время для новой задачи.",
+                task.getHeader(), task.getTaskType().toString(), task.getStartTime().toString(),
+                task.getEndTime().toString()), exception.getMessage());
 
         List<Task> tasksAfterAttemptToCreateNewTask = taskManager.getTaskList();
 
-        assertEquals(0, uncreatedTask.getId(), "ID несозданной задачи отличается от 0.");
         assertNotNull(tasksAfterAttemptToCreateNewTask, "Задачи не возвращаются.");
         assertEquals(1, tasksAfterAttemptToCreateNewTask.size());
         assertEquals(task, tasksAfterAttemptToCreateNewTask.get(0), "Задачи не совпадают.");
@@ -644,11 +667,16 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
         Task newTask = new Task("newTaskHeader", "newTaskDescription", CurrentStatus.NEW,
                 LocalDateTime.of(2023, 2, 18, 9, 0), 200);
-        Task uncreatedTask = taskManager.createTask(newTask);
+
+        IllegalStateException exception = assertThrows(IllegalStateException.class,
+                () -> taskManager.createTask(newTask));
+        assertEquals(String.format("Время создаваемой задачи пересекается с задачей '%s' типа %s. " +
+                        "Время её начала - %s. Время её окончания - %s. Выберите другое время для новой задачи.",
+                task.getHeader(), task.getTaskType().toString(), task.getStartTime().toString(),
+                task.getEndTime().toString()), exception.getMessage());
 
         List<Task> tasksAfterAttemptToCreateNewTask = taskManager.getTaskList();
 
-        assertEquals(0, uncreatedTask.getId(), "ID несозданной задачи отличается от 0.");
         assertNotNull(tasksAfterAttemptToCreateNewTask, "Задачи не возвращаются.");
         assertEquals(1, tasksAfterAttemptToCreateNewTask.size());
         assertEquals(task, tasksAfterAttemptToCreateNewTask.get(0), "Задачи не совпадают.");
@@ -851,6 +879,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
     @Test
     void getSubsByEpicIdTestWithEmptyMapAndCorrectId() {
+        taskManager.deleteEpics();
         List<Epic> epics = taskManager.getEpicList();
 
         assertNotNull(epics, "Задачи не возвращаются.");
