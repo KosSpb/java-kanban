@@ -163,4 +163,131 @@ class InMemoryHistoryManagerTest {
         assertEquals(0, historyOfViewAfterRemovingCorrectId.size(), "Список истории просмотров не " +
                 "пуст.");
     }
+
+    @Test
+    void getHistoryTestAfter1TaskGotten() {
+        List<Task> emptyHistoryOfView = taskManager.getHistory();
+
+        assertNotNull(emptyHistoryOfView, "Подзадачи не возвращаются.");
+        assertEquals(0, emptyHistoryOfView.size(), "Неверное количество просмотров.");
+
+        taskManager.getTaskById(2);
+
+        List<Task> historyOfViewAfter1TaskGotten = taskManager.getHistory();
+
+        assertNotNull(historyOfViewAfter1TaskGotten, "Подзадачи не возвращаются.");
+        assertEquals(1, historyOfViewAfter1TaskGotten.size(), "Неверное количество просмотров.");
+        assertEquals(2, historyOfViewAfter1TaskGotten.get(0).getId(),
+                "ID вызванной задачи и ID задачи попавшей в историю просмотров не совпадают.");
+    }
+
+    @Test
+    void getHistoryTestAfter2SubtaskWithSameIdAnd2EpicsWithSameIdGotten() {
+        List<Task> emptyHistoryOfView = taskManager.getHistory();
+
+        assertNotNull(emptyHistoryOfView, "Подзадачи не возвращаются.");
+        assertEquals(0, emptyHistoryOfView.size(), "Неверное количество просмотров.");
+
+        taskManager.getSubtaskById(3);
+        taskManager.getEpicById(1);
+        taskManager.getSubtaskById(3);
+        taskManager.getEpicById(1);
+
+        List<Task> historyOfViewAfter2SubtaskWithSameIdAnd2EpicsWithSameIdGotten = taskManager.getHistory();
+
+        assertNotNull(historyOfViewAfter2SubtaskWithSameIdAnd2EpicsWithSameIdGotten,
+                "Подзадачи не возвращаются.");
+        assertEquals(2, historyOfViewAfter2SubtaskWithSameIdAnd2EpicsWithSameIdGotten.size(),
+                "Неверное количество просмотров.");
+        assertEquals(3, historyOfViewAfter2SubtaskWithSameIdAnd2EpicsWithSameIdGotten.get(0).getId(),
+                "ID вызванной задачи и ID задачи попавшей в историю просмотров не совпадают.");
+        assertEquals(1, historyOfViewAfter2SubtaskWithSameIdAnd2EpicsWithSameIdGotten.get(1).getId(),
+                "ID вызванной задачи и ID задачи попавшей в историю просмотров не совпадают.");
+    }
+
+    @Test
+    void shouldRemoveFirstTaskFromHistoryOfViewAndSaveOrder() {
+        List<Task> emptyHistoryOfView = taskManager.getHistory();
+
+        assertNotNull(emptyHistoryOfView, "Подзадачи не возвращаются.");
+        assertEquals(0, emptyHistoryOfView.size(), "Неверное количество просмотров.");
+
+        taskManager.getTaskById(2);
+        taskManager.getEpicById(1);
+        taskManager.getSubtaskById(3);
+
+        List<Task> historyOfViewAfter3TasksGotten = taskManager.getHistory();
+
+        assertNotNull(historyOfViewAfter3TasksGotten, "Подзадачи не возвращаются.");
+        assertEquals(3, historyOfViewAfter3TasksGotten.size(), "Неверное количество просмотров.");
+        assertEquals(List.of(task, epic, subtask), historyOfViewAfter3TasksGotten,
+                "Неверный порядок просмотров.");
+
+        taskManager.deleteTaskById(2);
+
+        List<Task> historyOfViewAfterFirstTaskWasDeleted = taskManager.getHistory();
+
+        assertNotNull(historyOfViewAfterFirstTaskWasDeleted, "Подзадачи не возвращаются.");
+        assertEquals(2, historyOfViewAfterFirstTaskWasDeleted.size(),
+                "Неверное количество просмотров.");
+        assertEquals(List.of(epic, subtask), historyOfViewAfterFirstTaskWasDeleted,
+                "Неверный порядок просмотров.");
+    }
+
+    @Test
+    void shouldRemoveSubtaskFromMiddleOfHistoryOfViewAndSaveOrder() {
+        List<Task> emptyHistoryOfView = taskManager.getHistory();
+
+        assertNotNull(emptyHistoryOfView, "Подзадачи не возвращаются.");
+        assertEquals(0, emptyHistoryOfView.size(), "Неверное количество просмотров.");
+
+        taskManager.getTaskById(2);
+        taskManager.getSubtaskById(3);
+        taskManager.getEpicById(1);
+
+        List<Task> historyOfViewAfter3TasksGotten = taskManager.getHistory();
+
+        assertNotNull(historyOfViewAfter3TasksGotten, "Подзадачи не возвращаются.");
+        assertEquals(3, historyOfViewAfter3TasksGotten.size(), "Неверное количество просмотров.");
+        assertEquals(List.of(task, subtask, epic), historyOfViewAfter3TasksGotten,
+                "Неверный порядок просмотров.");
+
+        taskManager.deleteSubtaskById(3);
+
+        List<Task> historyOfViewAfterSubtaskFromMiddleWasDeleted = taskManager.getHistory();
+
+        assertNotNull(historyOfViewAfterSubtaskFromMiddleWasDeleted, "Подзадачи не возвращаются.");
+        assertEquals(2, historyOfViewAfterSubtaskFromMiddleWasDeleted.size(),
+                "Неверное количество просмотров.");
+        assertEquals(List.of(task, epic), historyOfViewAfterSubtaskFromMiddleWasDeleted,
+                "Неверный порядок просмотров.");
+    }
+
+    @Test
+    void shouldRemoveLastTaskFromHistoryOfViewAndSaveOrder() {
+        List<Task> emptyHistoryOfView = taskManager.getHistory();
+
+        assertNotNull(emptyHistoryOfView, "Подзадачи не возвращаются.");
+        assertEquals(0, emptyHistoryOfView.size(), "Неверное количество просмотров.");
+
+        taskManager.getSubtaskById(3);
+        taskManager.getEpicById(1);
+        taskManager.getTaskById(2);
+
+        List<Task> historyOfViewAfter3TasksGotten = taskManager.getHistory();
+
+        assertNotNull(historyOfViewAfter3TasksGotten, "Подзадачи не возвращаются.");
+        assertEquals(3, historyOfViewAfter3TasksGotten.size(), "Неверное количество просмотров.");
+        assertEquals(List.of(subtask, epic, task), historyOfViewAfter3TasksGotten,
+                "Неверный порядок просмотров.");
+
+        taskManager.deleteTaskById(2);
+
+        List<Task> historyOfViewAfterLastTaskWasDeleted = taskManager.getHistory();
+
+        assertNotNull(historyOfViewAfterLastTaskWasDeleted, "Подзадачи не возвращаются.");
+        assertEquals(2, historyOfViewAfterLastTaskWasDeleted.size(), "Неверное количество просмотров.");
+        assertEquals(List.of(subtask, epic), historyOfViewAfterLastTaskWasDeleted,
+                "Неверный порядок просмотров.");
+    }
 }

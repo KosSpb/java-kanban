@@ -163,6 +163,7 @@ public class InMemoryTaskManager implements TaskManager {
             List<Long> existingSubtasks = epicStorage.get(epic.getId()).getSubtaskIds();
             if (!existingSubtasks.isEmpty()) {
                 epic.setSubtaskIds(existingSubtasks);
+                setEpicStatus(epic);
                 setEpicTime(epic);
             }
             epicStorage.put(epic.getId(), epic);
@@ -244,43 +245,40 @@ public class InMemoryTaskManager implements TaskManager {
     //Удаление по идентификатору:
     @Override
     public void deleteTaskById(long id) {
-        if (taskStorage.containsKey(id)) {
-            prioritizedTasks.remove(taskStorage.remove(id));
-            System.out.println("Задача с ID '" + id + "' удалена.");
-            historyManager.remove(id);
-        } else {
-            System.out.println("Задача с ID '" + id + "' отсутствует, либо уже была удалена.");
+        if (!taskStorage.containsKey(id)) {
+            throw new IllegalArgumentException("Задача с ID '" + id + "' отсутствует, либо уже была удалена.");
         }
+        prioritizedTasks.remove(taskStorage.remove(id));
+        System.out.println("Задача с ID '" + id + "' удалена.");
+        historyManager.remove(id);
     }
 
     @Override
     public void deleteEpicById(long id) {
-        if (epicStorage.containsKey(id)) {
-            for (Long idFor : epicStorage.get(id).getSubtaskIds()) {//удаление сабтасков привязанных к эпику
-                prioritizedTasks.remove(subStorage.remove(idFor));
-                historyManager.remove(idFor);
-            }
-            epicStorage.remove(id);
-            System.out.println("Эпик с ID '" + id + "' удален вместе с его подзадачами.");
-            historyManager.remove(id);
-        } else {
-            System.out.println("Эпик с ID '" + id + "' отсутствует, либо уже был удален.");
+        if (!epicStorage.containsKey(id)) {
+            throw new IllegalArgumentException("Эпик с ID '" + id + "' отсутствует, либо уже был удален.");
         }
+        for (Long idFor : epicStorage.get(id).getSubtaskIds()) {//удаление сабтасков привязанных к эпику
+            prioritizedTasks.remove(subStorage.remove(idFor));
+            historyManager.remove(idFor);
+        }
+        epicStorage.remove(id);
+        System.out.println("Эпик с ID '" + id + "' удален вместе с его подзадачами.");
+        historyManager.remove(id);
     }
 
     @Override
     public void deleteSubtaskById(long id) {
-        if (subStorage.containsKey(id)) {
-            Epic epic = epicStorage.get(subStorage.get(id).getEpicId());//удаление id сабтаска из списка его эпика
-            epic.getSubtaskIds().remove(id);
-            setEpicStatus(epic);
-            setEpicTime(epic);
-            prioritizedTasks.remove(subStorage.remove(id));
-            System.out.println("Подзадача с ID '" + id + "' удалена.");
-            historyManager.remove(id);
-        } else {
-            System.out.println("Подзадача с ID '" + id + "' отсутствует, либо уже была удалена.");
+        if (!subStorage.containsKey(id)) {
+            throw new IllegalArgumentException("Подзадача с ID '" + id + "' отсутствует, либо уже была удалена.");
         }
+        Epic epic = epicStorage.get(subStorage.get(id).getEpicId());//удаление id сабтаска из списка его эпика
+        epic.getSubtaskIds().remove(id);
+        setEpicStatus(epic);
+        setEpicTime(epic);
+        prioritizedTasks.remove(subStorage.remove(id));
+        System.out.println("Подзадача с ID '" + id + "' удалена.");
+        historyManager.remove(id);
     }
 
     //Получение списка всех подзадач определённого эпика:

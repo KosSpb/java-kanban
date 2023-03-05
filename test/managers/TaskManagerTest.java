@@ -753,7 +753,9 @@ abstract class TaskManagerTest<T extends TaskManager> {
         assertEquals(1, tasks.size(), "Неверное количество задач.");
         assertEquals(task, tasks.get(0), "Задачи не совпадают.");
 
-        taskManager.deleteTaskById(0);
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> taskManager.deleteTaskById(0));
+        assertEquals("Задача с ID '0' отсутствует, либо уже была удалена.", exception.getMessage());
 
         List<Task> tasksAfterNoneWasDeleted = taskManager.getTaskList();
 
@@ -793,7 +795,9 @@ abstract class TaskManagerTest<T extends TaskManager> {
         assertEquals(1, subtasks.size(), "Неверное количество подзадач.");
         assertEquals(subtask, subtasks.get(0), "Задачи не совпадают.");
 
-        taskManager.deleteEpicById(0);
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> taskManager.deleteEpicById(0));
+        assertEquals("Эпик с ID '0' отсутствует, либо уже был удален.", exception.getMessage());
 
         List<Epic> epicsAfterNoneWasDeleted = taskManager.getEpicList();
         List<Subtask> subtasksAfterNoneWasDeleted = taskManager.getSubtaskList();
@@ -828,7 +832,9 @@ abstract class TaskManagerTest<T extends TaskManager> {
         assertEquals(1, subtasks.size(), "Неверное количество подзадач.");
         assertEquals(subtask, subtasks.get(0), "Подзадачи не совпадают.");
 
-        taskManager.deleteSubtaskById(0);
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> taskManager.deleteSubtaskById(0));
+        assertEquals("Подзадача с ID '0' отсутствует, либо уже была удалена.", exception.getMessage());
 
         List<Subtask> subtasksAfterNoneWasDeleted = taskManager.getSubtaskList();
 

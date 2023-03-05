@@ -145,7 +145,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         save();
     }
 
-    private void save() { //сохраняет текущее состояние менеджера в указанный файл
+    public void save() { //сохраняет текущее состояние менеджера в указанный файл
         Map<Long, Task> sortedTasks = new TreeMap<>();
         for (Long taskId : taskStorage.keySet()) {
             sortedTasks.put(taskId, taskStorage.get(taskId));
