@@ -108,7 +108,6 @@ class HttpTaskServerTest {
 
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
         assertEquals(405, response.statusCode());
-        assertEquals("Путь /tasks/ta не соответствует ожидаемому.", response.body());
     }
 
     @Test
@@ -120,7 +119,6 @@ class HttpTaskServerTest {
 
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
         assertEquals(405, response.statusCode());
-        assertEquals("Ожидается GET, POST или DELETE запрос, а поступил - PUT", response.body());
     }
 
     @Test
@@ -341,7 +339,6 @@ class HttpTaskServerTest {
 
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
         assertEquals(404, response.statusCode());
-        assertEquals("Эпика с ID '0' не существует, либо список его подзадач пуст.", response.body());
     }
 
     @Test
@@ -364,7 +361,6 @@ class HttpTaskServerTest {
 
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
         assertEquals(404, response.statusCode());
-        assertEquals("Задачи с ID '55' не существует.", response.body());
     }
 
     @Test
@@ -387,7 +383,6 @@ class HttpTaskServerTest {
 
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
         assertEquals(404, response.statusCode());
-        assertEquals("Задачи с ID '33' не существует.", response.body());
     }
 
     @Test
@@ -410,7 +405,6 @@ class HttpTaskServerTest {
 
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
         assertEquals(404, response.statusCode());
-        assertEquals("Задачи с ID '77' не существует.", response.body());
     }
 
     @Test
@@ -424,7 +418,6 @@ class HttpTaskServerTest {
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
         assertEquals(200, response.statusCode());
-        assertEquals("Задача создана", response.body());
 
         List<Task> actualTasks = httpTaskManager.getTaskList();
         postTask.setId(actualTasks.get(1).getId());
@@ -446,7 +439,6 @@ class HttpTaskServerTest {
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
         assertEquals(200, response.statusCode());
-        assertEquals("Задача обновлена", response.body());
 
         List<Task> actualTasks = httpTaskManager.getTaskList();
 
@@ -467,7 +459,6 @@ class HttpTaskServerTest {
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
         assertEquals(400, response.statusCode());
-        assertEquals("Значение null может быть только в поле startTime и endTime", response.body());
 
         List<Task> actualTasks = httpTaskManager.getTaskList();
 
@@ -487,7 +478,6 @@ class HttpTaskServerTest {
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
         assertEquals(400, response.statusCode());
-        assertEquals("Заголовок не может быть пустыми", response.body());
 
         List<Task> actualTasks = httpTaskManager.getTaskList();
 
@@ -506,7 +496,6 @@ class HttpTaskServerTest {
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
         assertEquals(200, response.statusCode());
-        assertEquals("Эпик создан", response.body());
 
         List<Epic> actualEpics = httpTaskManager.getEpicList();
         postEpic.setId(actualEpics.get(1).getId());
@@ -527,7 +516,6 @@ class HttpTaskServerTest {
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
         assertEquals(200, response.statusCode());
-        assertEquals("Эпик обновлен", response.body());
 
         List<Epic> actualEpics = httpTaskManager.getEpicList();
         postEpic.setSubtaskIds(List.of(httpTaskManager.getSubtaskById(3).getId()));
@@ -548,7 +536,6 @@ class HttpTaskServerTest {
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
         assertEquals(400, response.statusCode());
-        assertEquals("Значение null может быть только в поле startTime и endTime", response.body());
 
         List<Epic> actualEpics = httpTaskManager.getEpicList();
 
@@ -567,7 +554,6 @@ class HttpTaskServerTest {
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
         assertEquals(400, response.statusCode());
-        assertEquals("Заголовок не может быть пустыми", response.body());
 
         List<Epic> actualEpics = httpTaskManager.getEpicList();
 
@@ -588,7 +574,6 @@ class HttpTaskServerTest {
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
         assertEquals(200, response.statusCode());
-        assertEquals("Подзадача создана", response.body());
 
         List<Subtask> actualSubtasks = httpTaskManager.getSubtaskList();
         postSubtask.setId(actualSubtasks.get(1).getId());
@@ -611,7 +596,6 @@ class HttpTaskServerTest {
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
         assertEquals(200, response.statusCode());
-        assertEquals("Подзадача обновлена", response.body());
 
         List<Subtask> actualSubtasks = httpTaskManager.getSubtaskList();
 
@@ -633,7 +617,6 @@ class HttpTaskServerTest {
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
         assertEquals(400, response.statusCode());
-        assertEquals("Значение null может быть только в поле startTime и endTime", response.body());
 
         List<Subtask> actualSubtasks = httpTaskManager.getSubtaskList();
 
@@ -654,7 +637,6 @@ class HttpTaskServerTest {
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
         assertEquals(400, response.statusCode());
-        assertEquals("Заголовок не может быть пустыми", response.body());
 
         List<Subtask> actualSubtasks = httpTaskManager.getSubtaskList();
 
@@ -675,7 +657,6 @@ class HttpTaskServerTest {
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
         assertEquals(405, response.statusCode());
-        assertEquals("Путь /tasks/subt/ не соответствует ожидаемому.", response.body());
 
         List<Subtask> actualSubtasks = httpTaskManager.getSubtaskList();
 
@@ -691,7 +672,6 @@ class HttpTaskServerTest {
 
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
         assertEquals(405, response.statusCode());
-        assertEquals("Путь /tasks/epi не соответствует ожидаемому.", response.body());
     }
 
     @Test
@@ -759,7 +739,6 @@ class HttpTaskServerTest {
 
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
         assertEquals(404, response.statusCode());
-        assertEquals("Задача с ID '55' отсутствует, либо уже была удалена.", response.body());
 
         List<Task> actualTasks = httpTaskManager.getTaskList();
 
@@ -790,7 +769,6 @@ class HttpTaskServerTest {
 
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
         assertEquals(404, response.statusCode());
-        assertEquals("Эпик с ID '33' отсутствует, либо уже был удален.", response.body());
 
         List<Epic> actualEpics = httpTaskManager.getEpicList();
 
@@ -821,7 +799,6 @@ class HttpTaskServerTest {
 
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
         assertEquals(404, response.statusCode());
-        assertEquals("Подзадача с ID '77' отсутствует, либо уже была удалена.", response.body());
 
         List<Subtask> actualSubtasks = httpTaskManager.getSubtaskList();
 

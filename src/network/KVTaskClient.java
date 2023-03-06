@@ -8,23 +8,27 @@ import java.net.http.HttpResponse;
 
 public class KVTaskClient {
     private final String urlOfKVServer;
-    private final String api_token;
+    private final String apiToken;
     private final HttpClient httpClient;
 
     public KVTaskClient(String urlOfKVServer) {
         this.urlOfKVServer = urlOfKVServer;
         this.httpClient = HttpClient.newHttpClient();
-        this.api_token = register(urlOfKVServer);
+        this.apiToken = register(urlOfKVServer);
     }
 
     public void put(String key, String json) {
         HttpRequest.BodyPublisher body = HttpRequest.BodyPublishers.ofString(json);
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(urlOfKVServer + "save/" + key + "?API_TOKEN=" + api_token))
+                .uri(URI.create(urlOfKVServer + "save/" + key + "?API_TOKEN=" + apiToken))
                 .POST(body)
                 .build();
         try {
-            httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+            if (response.statusCode() != 200) {
+                throw new IllegalStateException("При ответе на POST запрос сервер вернул ошибку с кодом: "
+                        + response.statusCode());
+            }
         } catch (IOException | InterruptedException e) {
             throw new IllegalStateException("Во время выполнения POST запроса к KVServer возникла ошибка.\n" +
                     "Проверьте, пожалуйста, адрес и повторите попытку.");
@@ -33,11 +37,16 @@ public class KVTaskClient {
 
     public String load(String key) {
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(urlOfKVServer + "load/" + key + "?API_TOKEN=" + api_token))
+                .uri(URI.create(urlOfKVServer + "load/" + key + "?API_TOKEN=" + apiToken))
                 .GET()
                 .build();
         try {
-            return httpClient.send(request, HttpResponse.BodyHandlers.ofString()).body();
+            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+            if (response.statusCode() != 200) {
+                throw new IllegalStateException("При ответе на GET запрос сервер вернул ошибку с кодом: "
+                        + response.statusCode());
+            }
+            return response.body();
         } catch (IOException | InterruptedException e) {
             throw new IllegalStateException("Во время выполнения GET запроса к KVServer возникла ошибка.\n" +
                     "Проверьте, пожалуйста, адрес и повторите попытку.");

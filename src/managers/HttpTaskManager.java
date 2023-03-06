@@ -1,12 +1,12 @@
 package managers;
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import network.KVTaskClient;
 import tasks.Epic;
 import tasks.Subtask;
 import tasks.Task;
 
-import java.nio.file.Paths;
 import java.util.*;
 
 public class HttpTaskManager extends FileBackedTasksManager {
@@ -14,112 +14,81 @@ public class HttpTaskManager extends FileBackedTasksManager {
     private final Gson gson;
 
     public HttpTaskManager(String urlOfKVServer) {
-        super((Paths.get("resources/FileBackedTasks.csv")).toFile());
+        super(null);
         this.kvTaskClient = new KVTaskClient(urlOfKVServer);
         this.gson = Managers.getGson();
     }
 
     @Override
     public void save() {
-        String regex = "@d#_%Q=!#&8!";
-        StringBuilder tasksJsonString = new StringBuilder();
         if (taskStorage.isEmpty()) {
-            tasksJsonString.append(gson.toJson(new ArrayList<>()));
+            kvTaskClient.put("tasks", gson.toJson(new ArrayList<>()));
         }
-        for (Long taskId : taskStorage.keySet()) {
-            tasksJsonString.append(gson.toJson(taskStorage.get(taskId)));
-            tasksJsonString.append(regex);
-        }
-        kvTaskClient.put("tasks", tasksJsonString.toString());
+        kvTaskClient.put("tasks", gson.toJson(taskStorage));
 
-        StringBuilder epicsJsonString = new StringBuilder();
         if (epicStorage.isEmpty()) {
-            epicsJsonString.append(gson.toJson(new ArrayList<>()));
+            kvTaskClient.put("epics", gson.toJson(new ArrayList<>()));
         }
-        for (Long epicId : epicStorage.keySet()) {
-            epicsJsonString.append(gson.toJson(epicStorage.get(epicId)));
-            epicsJsonString.append(regex);
-        }
-        kvTaskClient.put("epics", epicsJsonString.toString());
+        kvTaskClient.put("epics", gson.toJson(epicStorage));
 
-        StringBuilder subtasksJsonString = new StringBuilder();
         if (subStorage.isEmpty()) {
-            subtasksJsonString.append(gson.toJson(new ArrayList<>()));
+            kvTaskClient.put("subtasks", gson.toJson(new ArrayList<>()));
         }
-        for (Long subtaskId : subStorage.keySet()) {
-            subtasksJsonString.append(gson.toJson(subStorage.get(subtaskId)));
-            subtasksJsonString.append(regex);
-        }
-        kvTaskClient.put("subtasks", subtasksJsonString.toString());
+        kvTaskClient.put("subtasks", gson.toJson(subStorage));
 
-        StringBuilder historyString = new StringBuilder();
         if (historyManager.getHistory().isEmpty()) {
-            historyString.append(gson.toJson(new ArrayList<>()));
+            kvTaskClient.put("history", gson.toJson(new ArrayList<>()));
         }
-        for (Task task : historyManager.getHistory()) {
-            historyString.append(task.getId());
-            historyString.append(",");
-        }
-        kvTaskClient.put("history", historyString.toString());
+        kvTaskClient.put("history", gson.toJson(historyManager.getHistory()));
     }
 
-    public HttpTaskManager loadFromKVServer(String urlOfKVServer) {
-        HttpTaskManager managerFromKVServer = new HttpTaskManager(urlOfKVServer);
-        String regex = "@d#_%Q=!#&8!";
+    public void loadFromKVServer() {
         long idCorrector = 0;
-        Map<Long, Task> tasksForHistoryRestore = new HashMap<>();
-
         String jsonResponse = kvTaskClient.load("tasks");
-        String[] partsOfJsonResponse = jsonResponse.split(regex);
         if (!jsonResponse.equals("[]")) {
-            for (String taskFromJsonResponse : partsOfJsonResponse) {
-                Task task = gson.fromJson(taskFromJsonResponse, Task.class);
-                managerFromKVServer.taskStorage.put(task.getId(), task);
-                managerFromKVServer.prioritizedTasks.add(task);
-                if (task.getId() > idCorrector) {
-                    idCorrector = task.getId();
+            taskStorage = gson.fromJson(jsonResponse, new TypeToken<HashMap<Long, Task>>(){}.getType());
+            for (Map.Entry<Long, Task> taskEntry : taskStorage.entrySet()) {
+                prioritizedTasks.add(taskEntry.getValue());
+                if (taskEntry.getValue().getId() > idCorrector) {
+                    idCorrector = taskEntry.getValue().getId();
                 }
-                tasksForHistoryRestore.put(task.getId(), task);
             }
         }
-
         jsonResponse = kvTaskClient.load("epics");
-        partsOfJsonResponse = jsonResponse.split(regex);
         if (!jsonResponse.equals("[]")) {
-            for (String epicFromJsonResponse : partsOfJsonResponse) {
-                Epic epic = gson.fromJson(epicFromJsonResponse, Epic.class);
-                managerFromKVServer.epicStorage.put(epic.getId(), epic);
-                if (epic.getId() > idCorrector) {
-                    idCorrector = epic.getId();
+            epicStorage = gson.fromJson(jsonResponse, new TypeToken<HashMap<Long, Epic>>(){}.getType());
+            for (Map.Entry<Long, Epic> epicEntry : epicStorage.entrySet()) {
+                if (epicEntry.getValue().getId() > idCorrector) {
+                    idCorrector = epicEntry.getValue().getId();
                 }
-                tasksForHistoryRestore.put(epic.getId(), epic);
             }
         }
-
         jsonResponse = kvTaskClient.load("subtasks");
-        partsOfJsonResponse = jsonResponse.split(regex);
         if (!jsonResponse.equals("[]")) {
-            for (String subtaskFromJsonResponse : partsOfJsonResponse) {
-                Subtask subtask = gson.fromJson(subtaskFromJsonResponse, Subtask.class);
-                managerFromKVServer.subStorage.put(subtask.getId(), subtask);
-                managerFromKVServer.prioritizedTasks.add(subtask);
-                if (subtask.getId() > idCorrector) {
-                    idCorrector = subtask.getId();
+            subStorage = gson.fromJson(jsonResponse, new TypeToken<HashMap<Long, Subtask>>(){}.getType());
+            for (Map.Entry<Long, Subtask> subtaskEntry : subStorage.entrySet()) {
+                prioritizedTasks.add(subtaskEntry.getValue());
+                if (subtaskEntry.getValue().getId() > idCorrector) {
+                    idCorrector = subtaskEntry.getValue().getId();
                 }
-                tasksForHistoryRestore.put(subtask.getId(), subtask);
             }
         }
-
-        String historyString = kvTaskClient.load("history");
-        if (!historyString.equals("[]")) {
-            String[] historyTaskIds = historyString.split(",");
-            for (String taskId : historyTaskIds) {
-                long parsedId = Long.parseLong(taskId);
-                managerFromKVServer.historyManager.add(tasksForHistoryRestore.get(parsedId));
+        jsonResponse = kvTaskClient.load("history");
+        if (!jsonResponse.equals("[]")) {
+            List<Task> tasks = gson.fromJson(jsonResponse, new TypeToken<ArrayList<Task>>(){}.getType());
+            for (Task task : tasks) {
+                switch (task.getTaskType()) {
+                    case EPIC:
+                        historyManager.add(epicStorage.get(task.getId()));
+                        break;
+                    case SUBTASK:
+                        historyManager.add(subStorage.get(task.getId()));
+                        break;
+                    default:
+                        historyManager.add(taskStorage.get(task.getId()));
+                }
             }
         }
-
-        managerFromKVServer.id = idCorrector;
-        return managerFromKVServer;
+        id = idCorrector;
     }
 }

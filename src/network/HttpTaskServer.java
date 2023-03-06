@@ -24,6 +24,15 @@ public class HttpTaskServer {
     private HttpServer server;
     private Gson gson;
     private TaskManager httpTaskManager;
+    private final String pathOfTask;
+    private final String pathOfEpic;
+    private final String pathOfSubtask;
+    private final String pathOfTaskWithId;
+    private final String pathOfEpicWithId;
+    private final String pathOfSubtaskWithId;
+    private final String pathOfHistory;
+    private final String pathOfPrioritizedTasks;
+    private final String pathOfEpicSubtasksWithId;
 
     public HttpTaskServer() throws IOException {
         this(Managers.getDefault());
@@ -34,6 +43,15 @@ public class HttpTaskServer {
         this.gson = Managers.getGson();
         this.server = HttpServer.create(new InetSocketAddress("localhost", PORT), 0);
         server.createContext("/tasks", this::handleTasks);
+        this.pathOfTask = "^/tasks/task/$";
+        this.pathOfEpic = "^/tasks/epic/$";
+        this.pathOfSubtask = "^/tasks/subtask/$";
+        this.pathOfTaskWithId = "^/tasks/task/\\?id=\\d+$";
+        this.pathOfEpicWithId = "^/tasks/epic/\\?id=\\d+$";
+        this.pathOfSubtaskWithId = "^/tasks/subtask/\\?id=\\d+$";
+        this.pathOfHistory = "^/tasks/history/$";
+        this.pathOfPrioritizedTasks = "^/tasks/$";
+        this.pathOfEpicSubtasksWithId = "^/tasks/subtask/epic/\\?id=\\d+$";
     }
 
     public void start() {
@@ -53,22 +71,22 @@ public class HttpTaskServer {
             String requestMethod = httpExchange.getRequestMethod();
             String response;
             switch (requestMethod) {
-                case "GET": {
-                    if (Pattern.matches("^/tasks/task/$", path)
-                            || Pattern.matches("^/tasks/epic/$", path)
-                            || Pattern.matches("^/tasks/subtask/$", path)
-                            || Pattern.matches("^/tasks/history/$", path)
-                            || Pattern.matches("^/tasks/$", path)) {
+                case "GET":
+                    if (Pattern.matches(pathOfTask, path)
+                            || Pattern.matches(pathOfEpic, path)
+                            || Pattern.matches(pathOfSubtask, path)
+                            || Pattern.matches(pathOfHistory, path)
+                            || Pattern.matches(pathOfPrioritizedTasks, path)) {
 
                         handleGetAnyTypeOfTaskListOrListOfHistory(httpExchange, path);
 
-                    } else if (Pattern.matches("^/tasks/task/\\?id=\\d+$", path)
-                            || Pattern.matches("^/tasks/epic/\\?id=\\d+$", path)
-                            || Pattern.matches("^/tasks/subtask/\\?id=\\d+$", path)) {
+                    } else if (Pattern.matches(pathOfTaskWithId, path)
+                            || Pattern.matches(pathOfEpicWithId, path)
+                            || Pattern.matches(pathOfSubtaskWithId, path)) {
 
                         handleGetAnyTypeOfTaskById(httpExchange, path);
 
-                    } else if (Pattern.matches("^/tasks/subtask/epic/\\?id=\\d+$", path)) {
+                    } else if (Pattern.matches(pathOfEpicSubtasksWithId, path)) {
 
                         handleGetSubsByEpicId(httpExchange, path);
 
@@ -78,11 +96,11 @@ public class HttpTaskServer {
                         sendResponse(httpExchange, response, 405);
                     }
                     break;
-                }
-                case "POST": {
-                    if (Pattern.matches("^/tasks/task/$", path)
-                            || Pattern.matches("^/tasks/epic/$", path)
-                            || Pattern.matches("^/tasks/subtask/$", path)) {
+
+                case "POST":
+                    if (Pattern.matches(pathOfTask, path)
+                            || Pattern.matches(pathOfEpic, path)
+                            || Pattern.matches(pathOfSubtask, path)) {
 
                         handlePostCreateOrUpdateAnyTypeOfTask(httpExchange, path);
 
@@ -92,17 +110,17 @@ public class HttpTaskServer {
                         sendResponse(httpExchange, response, 405);
                     }
                     break;
-                }
-                case "DELETE": {
-                    if (Pattern.matches("^/tasks/task/$", path)
-                            || Pattern.matches("^/tasks/epic/$", path)
-                            || Pattern.matches("^/tasks/subtask/$", path)) {
+
+                case "DELETE":
+                    if (Pattern.matches(pathOfTask, path)
+                            || Pattern.matches(pathOfEpic, path)
+                            || Pattern.matches(pathOfSubtask, path)) {
 
                         handleDeleteAnyTypeOfTasks(httpExchange, path);
 
-                    } else if (Pattern.matches("^/tasks/task/\\?id=\\d+$", path)
-                            || Pattern.matches("^/tasks/epic/\\?id=\\d+$", path)
-                            || Pattern.matches("^/tasks/subtask/\\?id=\\d+$", path)) {
+                    } else if (Pattern.matches(pathOfTaskWithId, path)
+                            || Pattern.matches(pathOfEpicWithId, path)
+                            || Pattern.matches(pathOfSubtaskWithId, path)) {
 
                         handleDeleteAnyTypeOfTaskById(httpExchange, path);
 
@@ -112,12 +130,11 @@ public class HttpTaskServer {
                         sendResponse(httpExchange, response, 405);
                     }
                     break;
-                }
-                default: {
+
+                default:
                     response = "Ожидается GET, POST или DELETE запрос, а поступил - " + requestMethod;
                     System.out.println(response);
                     sendResponse(httpExchange, response, 405);
-                }
             }
         } catch (Exception exception) {
             exception.printStackTrace();
@@ -160,21 +177,17 @@ public class HttpTaskServer {
         } else {
             String requestType = pathParts[2];
             switch (requestType) {
-                case "task": {
+                case "task":
                     response = gson.toJson(httpTaskManager.getTaskList());
                     break;
-                }
-                case "epic": {
+                case "epic":
                     response = gson.toJson(httpTaskManager.getEpicList());
                     break;
-                }
-                case "subtask": {
+                case "subtask":
                     response = gson.toJson(httpTaskManager.getSubtaskList());
                     break;
-                }
-                case "history": {
+                case "history":
                     response = gson.toJson(httpTaskManager.getHistory());
-                }
             }
         }
         sendResponse(httpExchange, response, 200);
@@ -185,21 +198,19 @@ public class HttpTaskServer {
         String response;
         Task anyTask = null;
         String taskType = path.split("/")[2];
+        TaskType requestType = TaskType.valueOf(taskType.toUpperCase());
         String pathId = path.replaceFirst("/tasks/" + taskType + "/\\?id=", "");
         long id = parsePathId(pathId);
         if (id != -1) {
-            switch (taskType) {
-                case "task": {
+            switch (requestType) {
+                case TASK:
                     anyTask = httpTaskManager.getTaskById(id);
                     break;
-                }
-                case "epic": {
+                case EPIC:
                     anyTask = httpTaskManager.getEpicById(id);
                     break;
-                }
-                case "subtask": {
+                case SUBTASK:
                     anyTask = httpTaskManager.getSubtaskById(id);
-                }
             }
             if (anyTask == null) {
                 response = "Задачи с ID '" + pathId + "' не существует.";
@@ -241,10 +252,10 @@ public class HttpTaskServer {
     //Обработка создания и обновления задач:
     private void handlePostCreateOrUpdateAnyTypeOfTask(HttpExchange httpExchange, String path) throws IOException {
         String jsonRequest = readRequest(httpExchange);
-        String requestType = path.split("/")[2];
+        TaskType requestType = TaskType.valueOf(path.split("/")[2].toUpperCase());
         try {
             switch (requestType) {
-                case "task": {
+                case TASK:
                     Task task = gson.fromJson(jsonRequest, Task.class);
                     if (task.getTaskType() == null || task.getHeader() == null || task.getDescription() == null
                             || task.getStatus() == null || task.getDurationInMinutes() == null) {
@@ -268,8 +279,8 @@ public class HttpTaskServer {
                         sendResponse(httpExchange, "Задача создана", 200);
                     }
                     break;
-                }
-                case "epic": {
+
+                case EPIC:
                     Epic epic = gson.fromJson(jsonRequest, Epic.class);
                     if (epic.getSubtaskIds() == null || epic.getTaskType() == null || epic.getHeader() == null 
                             || epic.getDescription() == null || epic.getStatus() == null 
@@ -294,8 +305,8 @@ public class HttpTaskServer {
                         sendResponse(httpExchange, "Эпик создан", 200);
                     }
                     break;
-                }
-                case "subtask": {
+
+                case SUBTASK:
                     Subtask subtask = gson.fromJson(jsonRequest, Subtask.class);
                     if (subtask.getTaskType() == null || subtask.getHeader() == null || subtask.getDescription() == null
                             || subtask.getStatus() == null || subtask.getDurationInMinutes() == null) {
@@ -318,8 +329,6 @@ public class HttpTaskServer {
                         httpTaskManager.createSubtask(subtask);
                         sendResponse(httpExchange, "Подзадача создана", 200);
                     }
-                    break;
-                }
             }
         } catch (JsonSyntaxException exception) {
             sendResponse(httpExchange, "Получен некорректный JSON", 400);
@@ -330,20 +339,16 @@ public class HttpTaskServer {
 
     //Обработка удаления всех задач:
     private void handleDeleteAnyTypeOfTasks(HttpExchange httpExchange, String path) throws IOException {
-        String requestType = path.split("/")[2];
+        TaskType requestType = TaskType.valueOf(path.split("/")[2].toUpperCase());
         switch (requestType) {
-            case "task": {
+            case TASK:
                 httpTaskManager.deleteTasks();
                 break;
-            }
-            case "epic": {
+            case EPIC:
                 httpTaskManager.deleteEpics();
                 break;
-            }
-            case "subtask": {
+            case SUBTASK:
                 httpTaskManager.deleteSubtasks();
-                break;
-            }
         }
         httpExchange.sendResponseHeaders(200, 0);
     }
@@ -351,22 +356,20 @@ public class HttpTaskServer {
     //Обработка удаления по идентификатору:
     private void handleDeleteAnyTypeOfTaskById(HttpExchange httpExchange, String path) throws IOException {
         String taskType = path.split("/")[2];
+        TaskType requestType = TaskType.valueOf(taskType.toUpperCase());
         String pathId = path.replaceFirst("/tasks/" + taskType + "/\\?id=", "");
         long id = parsePathId(pathId);
         if (id != -1) {
             try {
-                switch (taskType) {
-                    case "task": {
+                switch (requestType) {
+                    case TASK:
                         httpTaskManager.deleteTaskById(id);
                         break;
-                    }
-                    case "epic": {
+                    case EPIC:
                         httpTaskManager.deleteEpicById(id);
                         break;
-                    }
-                    case "subtask": {
+                    case SUBTASK:
                         httpTaskManager.deleteSubtaskById(id);
-                    }
                 }
             } catch (IllegalArgumentException exception) {
                 System.out.println(exception.getMessage());

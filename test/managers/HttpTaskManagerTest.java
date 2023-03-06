@@ -86,7 +86,8 @@ class HttpTaskManagerTest extends TaskManagerTest<HttpTaskManager> {
 
         taskManager.deleteTasks();
 
-        TaskManager restoredEmptyHttpTaskManager = taskManager.loadFromKVServer("http://localhost:8078/");
+        HttpTaskManager restoredEmptyHttpTaskManager = new HttpTaskManager("http://localhost:8078/");
+        restoredEmptyHttpTaskManager.loadFromKVServer();
 
                 assertNotNull(restoredEmptyHttpTaskManager.getTaskList(), "Задачи не возвращаются.");
         assertEquals(0, restoredEmptyHttpTaskManager.getTaskList().size(),
@@ -153,7 +154,8 @@ class HttpTaskManagerTest extends TaskManagerTest<HttpTaskManager> {
         assertEquals(5, taskManager.getHistory().size(), "Неверное количество просмотров в " +
                 "истории.");
 
-        TaskManager restoredHttpTaskManagerWithData = taskManager.loadFromKVServer("http://localhost:8078/");
+        HttpTaskManager restoredHttpTaskManagerWithData = new HttpTaskManager("http://localhost:8078/");
+        restoredHttpTaskManagerWithData.loadFromKVServer();
 
         assertNotNull(restoredHttpTaskManagerWithData.getTaskList(), "Задачи не возвращаются.");
         assertEquals(2, restoredHttpTaskManagerWithData.getTaskList().size(),
@@ -224,8 +226,9 @@ class HttpTaskManagerTest extends TaskManagerTest<HttpTaskManager> {
         assertEquals(2, taskManager.getHistory().size(), "Неверное количество просмотров в " +
                 "истории.");
 
-        TaskManager restoredHttpTaskManagerWithoutSubtasks = taskManager
-                .loadFromKVServer("http://localhost:8078/");
+        HttpTaskManager restoredHttpTaskManagerWithoutSubtasks =
+                new HttpTaskManager("http://localhost:8078/");
+        restoredHttpTaskManagerWithoutSubtasks.loadFromKVServer();
 
         assertNotNull(restoredHttpTaskManagerWithoutSubtasks.getTaskList(), "Задачи не " +
                 "возвращаются.");
@@ -296,8 +299,9 @@ class HttpTaskManagerTest extends TaskManagerTest<HttpTaskManager> {
         assertEquals(0, taskManager.getHistory().size(), "Неверное количество просмотров в " +
                 "истории.");
 
-        TaskManager restoredHttpTaskManagerWithEmptyHistory = taskManager
-                .loadFromKVServer("http://localhost:8078/");
+        HttpTaskManager restoredHttpTaskManagerWithEmptyHistory =
+                new HttpTaskManager("http://localhost:8078/");
+        restoredHttpTaskManagerWithEmptyHistory.loadFromKVServer();
 
         assertNotNull(restoredHttpTaskManagerWithEmptyHistory.getTaskList(), "Задачи не " +
                 "возвращаются.");
