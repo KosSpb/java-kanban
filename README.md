@@ -1,3 +1,3 @@
 # java-kanban
 
-![alt text](https://github.com/KosSpb/java-filmorate/blob/main/picture.png)
+![alt text](https://github.com/KosSpb/java-kanban/blob/main/picture.png)
