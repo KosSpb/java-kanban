@@ -1,2 +1,3 @@
 # java-kanban
-Repository for homework project.
+
+![alt text](https://github.com/KosSpb/java-filmorate/blob/picture/picture.png)
