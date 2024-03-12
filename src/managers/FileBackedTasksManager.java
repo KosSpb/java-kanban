@@ -293,5 +293,9 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         System.out.println("\nИстория просмотров в восстановленной истории:\n");
         System.out.println(restoredFileBackedTasksManager.getHistory());
         System.out.println("________________________________");
+
+        System.out.println("\nTest commit:\n");
+        System.out.println(restoredFileBackedTasksManager.getHistory());
+        System.out.println("________________________________");
     }
 }
